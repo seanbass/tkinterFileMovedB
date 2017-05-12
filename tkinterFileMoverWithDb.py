@@ -20,7 +20,7 @@ import sqlite3
 #creates dB
 
 def createDB():
-    conn = sqlite3.connect('/Users/seanbass/Desktop/filesMoved.db')
+    conn = sqlite3.connect('create_dB.db')
     print('Connected to dB')
     conn.execute('DROP TABLE IF EXISTS fortKnox')
     conn.execute('CREATE TABLE IF NOT EXISTS fortKnox (ID INTEGER PRIMARY KEY AUTOINCREMENT, timeChecked TEXT)')
@@ -76,17 +76,24 @@ class FileCheck:
         destPathLabel = ttk.Label(self.frameSteps, text = self.destFolderName, textvariable = self.destFolderName)
         destPathLabel.grid(row = 4, column = 2, rowspan = 1, sticky = 'W')
 
+        #TimeCheck
+        fcTimeTitleLabel = ttk.Label(self.frameSteps, text = 'Last File Check: ')
+        fcTimeTitleLabel.grid(row = 7, column = 2, sticky = 'W' )
+        fcTimestampLabel = ttk.Label(self.frameSteps, text = datetime.now())
+        fcTimestampLabel.grid(row = 8, column = 2, rowspan = 1, sticky = 'W')
+      
+
         
         
     def chooseStartFolder(self):
-        self.filesStart = filedialog.askdirectory(initialdir = "/Users/seanbass/Desktop", title = "Choose Starting Folder")
+        self.filesStart = filedialog.askdirectory(initialdir = "/Users", title = "Choose Starting Folder")
         self.chooseFolderName.set(self.filesStart)
         print (self.filesStart)
         print (self.chooseFolderName.get())
         
       
     def chooseDestFolder(self):
-        self.filesEnd = filedialog.askdirectory(initialdir = "/Users/seanbass/Desktop", title = "Choose Destination Folder")
+        self.filesEnd = filedialog.askdirectory(initialdir = "/Users", title = "Choose Destination Folder")
         self.destFolderName.set(self.filesEnd)
         print (self.filesEnd)
         print (self.destFolderName.get())
@@ -113,7 +120,7 @@ class FileCheck:
 
     def dbCheck(self):
        
-        self.conn = sqlite3.connect('/Users/seanbass/Desktop/filesMoved.db')
+        self.conn = sqlite3.connect('create_dB.db')
         self.conn.execute("INSERT INTO fortKnox (timeChecked) VALUES (datetime(CURRENT_TIMESTAMP, 'localtime'))")
         self.conn.commit()
         self.cursor = self.conn.execute('SELECT timeChecked FROM fortKnox ORDER BY ID DESC LIMIT 1')
