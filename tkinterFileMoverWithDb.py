@@ -46,6 +46,11 @@ class FileCheck:
         print (self.destFolderName)
         self.dest = (self.destFolderName.get())
 
+        #GetdBtimestamp
+        self.fileCheckTimeStamp = StringVar()
+        print (self.fileCheckTimeStamp)
+        self.fcT = (self.fileCheckTimeStamp.get())
+
         #Frame
         self.frameSteps = ttk.Frame(master)
         self.frameSteps.pack()
@@ -79,11 +84,17 @@ class FileCheck:
         #TimeCheck
         fcTimeTitleLabel = ttk.Label(self.frameSteps, text = 'Last File Check: ')
         fcTimeTitleLabel.grid(row = 7, column = 2, sticky = 'W' )
-        fcTimestampLabel = ttk.Label(self.frameSteps, text = datetime.now())
+        fcTimestampLabel = ttk.Label(self.frameSteps, textvariable = self.fileCheckTimeStamp)
         fcTimestampLabel.grid(row = 8, column = 2, rowspan = 1, sticky = 'W')
-      
+
+
+        #MostRecentTimestamp
+        self.updateFcTimeStamp()
 
         
+
+      
+
         
     def chooseStartFolder(self):
         self.filesStart = filedialog.askdirectory(initialdir = "/Users", title = "Choose Starting Folder")
@@ -113,19 +124,34 @@ class FileCheck:
                     print (files, "Copied: ", filesEnd)
                     shutil.copy(files,filesEnd)
                 else:
-                    print (files, "not copied")
+                    print (files, "Not Copied")
                     self.dbCheck()
 
 
 
-    def dbCheck(self):
-       
+
+    def updateFcTimeStamp(self):
         self.conn = sqlite3.connect('create_dB.db')
-        self.conn.execute("INSERT INTO fortKnox (timeChecked) VALUES (datetime(CURRENT_TIMESTAMP, 'localtime'))")
-        self.conn.commit()
+        print ("got into updatefc")
         self.cursor = self.conn.execute('SELECT timeChecked FROM fortKnox ORDER BY ID DESC LIMIT 1')
-        self.conn.close()
+        for row in self.cursor:
+            print (row)
+            self.fileCheckClock = self.fileCheckTimeStamp.set(row)
+            print (row)
+            
         
+
+    def dbCheck(self):
+        self.conn = sqlite3.connect('create_dB.db')
+        print ("connected")
+        self.conn.execute("INSERT INTO fortKnox (timeChecked) VALUES (datetime(CURRENT_TIMESTAMP, 'localtime'))")
+        print ("inserted timestamp")
+        self.conn.commit()
+        self.updateFcTimeStamp()
+        self.conn.close()
+        print ('Database closed')
+
+
 
 
 
@@ -134,7 +160,6 @@ def main():
     root.title("File Check")
     root.minsize(400, 280)
     filecheck = FileCheck(root)
-    createDB()
     root.mainloop()
 
 if __name__ == '__main__' : main()
